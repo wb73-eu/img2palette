@@ -44,7 +44,7 @@ def get_palette(image_path, num_colors, color_space='rgb'):
     pixels = image_array.reshape(-1, image_array.shape[-1])
 
     # Apply K-Means clustering
-    kmeans = KMeans(n_clusters=num_colors, random_state=0, n_init=10)
+    kmeans = KMeans(n_clusters=num_colors, random_state=0)
     kmeans.fit(pixels)
 
     # Get cluster centers as palette colors
