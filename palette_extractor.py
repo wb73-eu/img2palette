@@ -2,6 +2,7 @@ from PIL import Image
 import numpy as np
 from sklearn.cluster import KMeans
 import colorsys
+import argparse
 
 def convert_hsv_to_rgb(hsv_color):
     """Converts a single HSV color (0-255 scale) to RGB (0-255 scale)."""
@@ -59,19 +60,34 @@ def get_palette(image_path, num_colors, color_space='rgb'):
         return int_palette
 
 if __name__ == "__main__":
-    image_file = "test_image.jpg"
-    number_of_colors = 5
+    parser = argparse.ArgumentParser(
+        description="Extracts a dominant color palette from an image using K-Means clustering."
+    )
+    parser.add_argument(
+        "image_path",
+        help="Path to the input image file."
+    )
+
+    parser.add_argument(
+        "-n", "--num_colors",
+        type=int,
+        default=5,
+        help="Number of colors in the palette (default: 5)."
+    )
+
+    parser.add_argument(
+        "-c", "--color_space",
+        choices=['rgb','hsv'],
+        default='rgb',
+        help="Color space to use for clustering (default: rgb)."
+    )
+
+    args = parser.parse_args()
 
     # Get the palette using RGB clustering
-    rgb_palette = get_palette(image_file, number_of_colors, color_space='rgb')
-    print(f"Dominant Colors (RGB, clustered with RGB):")
-    for color in rgb_palette:
-        print(f" - {tuple(color)}")
-
-    print("-" * 20)
-
-    # Get the palette using HSV clustering
-    hsv_clustered_palette = get_palette(image_file, number_of_colors, color_space='hsv')
-    print(f"Dominant Colors (RGB, clustered with HSV):")
-    for color in hsv_clustered_palette:
-        print(f" - {tuple(color)}")
+    palette = get_palette(args.image_path, args.num_colors, args.color_space)
+    
+    if palette:
+        print(f"Dominant Colors (RGB)")
+        for color in rgb_palette:
+            print(f" - {tuple(color)}")
