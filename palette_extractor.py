@@ -1,4 +1,5 @@
 from PIL import Image
+from collections import Counter
 import numpy as np
 from sklearn.cluster import KMeans
 import colorsys
@@ -50,8 +51,18 @@ def get_palette(image_path, num_colors, color_space='rgb'):
     # Get cluster centers as palette colors
     palette = kmeans.cluster_centers_
 
-    # Convert the palette to integers
-    int_palette = palette.astype(int).tolist()
+    # Count the number of pixels in each cluster
+    labels = kmeans.labels_
+    cluster_counts = Counter(labels)
+
+    # Get the indices of the clusters in descending order of their size
+    sorted_cluster_indices = [item[0] for item in sorted(cluster_counts.items(), key=lambda x: x[1], reverse=True)]
+
+    # Reorder the palette based on the sorted indices
+    ordered_palette = [palette[i] for i in sorted_cluster_indices]
+
+    # Convert the ordered palette to integers
+    int_palette = [color.astype(int).tolist() for color in ordered_palette]
 
     if color_space == 'hsv':
         rgb_palette = [convert_hsv_to_rgb(color) for color in int_palette]
@@ -89,5 +100,5 @@ if __name__ == "__main__":
     
     if palette:
         print(f"Dominant Colors (RGB)")
-        for color in rgb_palette:
+        for color in palette:
             print(f" - {tuple(color)}")
