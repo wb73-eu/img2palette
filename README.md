@@ -2,7 +2,7 @@
 
 A python-based program that returns a color palette from an image using K-Means clustering algorithm.
 
-[img2palette application on an image.](result.png)
+![img2palette application on an image.](result.png)
 
 ## Installation
 
