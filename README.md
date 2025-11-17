@@ -25,7 +25,13 @@ A python-based program that returns a color palette from an image using clusteri
 pip install -r requirements.txt
 ```
 
-## Usage
+## Usage (Streamlit)
+Usage with Steamlit interface:
+```bash
+steamlit run app.py
+```
+
+## Usage (CLI)
 Basic usage from the command line:
 ```bash
 python palette_extractor.py input.jpg
@@ -33,7 +39,7 @@ python palette_extractor.py input.jpg
 
 ### Options
 
-* `input.jpg` : source image path.
+* `input.jpg` : source image path. (Can be a URL or a relative path)
 * `--num_colors`/`-n` : number of colors in the extracted palette (The default value is `5`).
 * `--color_space`/`-c` : color space used for plotting pixels before applying the clustering (`RGB` or `HSV`, default is `RGB`).
 * `--model`/`-m` : model used for clustering (`KMEANS` or `GMM`, default is `KMEANS`).

@@ -1,10 +1,12 @@
 from PIL import Image
 from collections import Counter
 import numpy as np
+from io import BytesIO
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
 import colorsys
 import argparse
+import requests
 
 def convert_hsv_to_rgb(hsv_color):
     """Converts a single HSV color (0-255 scale) to RGB (0-255 scale)."""
@@ -16,12 +18,12 @@ def convert_hsv_to_rgb(hsv_color):
 
     return (int(r_norm * 255), int(g_norm * 255), int(b_norm * 255))
 
-def get_palette(image_path, num_colors, color_space='rgb', model='kmeans'):
+def get_palette(image_source, num_colors, color_space='rgb', model='kmeans'):
     """
     Extracts a palette of colors from an image using K-Means clustering.
 
     Args:
-        image_path (str): The path to the image file.
+        image_source (str, file object): The path to the image file, a URL or a file object.
         num_colors (int): The number of colors to find.
         color_space (str): The color space to use ('rgb' or 'hsv').
         model (str): The model used for clustering ('kmeans' or 'gmm'z)
@@ -31,10 +33,38 @@ def get_palette(image_path, num_colors, color_space='rgb', model='kmeans'):
     """
 
     # Import image
-    try:
-        image = Image.open(image_path)
-    except FileNotFoundError:
-        print(f"Error: The file '{image_path}' was not found.")
+    image = None
+    if isinstance(image_source, str) and (image_source.startswith('http')):
+        try:
+            response = requests.get(image_source)
+            response.raise_for_status()
+            image = Image.open(BytesIO(response.content))
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching image from URL: {e}")
+            return []
+        except Exception as e:
+            print(f"Error opening image from URL content: {e}")
+            return []
+    elif isinstance(image_source, str):
+        try:
+            image = Image.open(image_source)
+        except FileNotFoundError:
+            print(f"Error: The file '{image_source}' was not found.")
+            return []
+        except Exception as e:
+            print(f"Error opening image from path: {e}")
+            return []
+    elif hasattr(image_source, 'read') or hasattr(image_source, 'getvalue'):
+        try:
+            image = Image.open(image_source)
+        except Exception as e:
+            print(f"Error opening image from file-like object: {e}")
+            return []
+    else:
+        print("Error: Invalid image source type provided.")
+        return []
+    
+    if image is None:
         return []
     
     # Convert image to HSV if chosen
