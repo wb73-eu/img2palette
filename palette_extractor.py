@@ -2,6 +2,7 @@ from PIL import Image
 from collections import Counter
 import numpy as np
 from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
 import colorsys
 import argparse
 
@@ -15,7 +16,7 @@ def convert_hsv_to_rgb(hsv_color):
 
     return (int(r_norm * 255), int(g_norm * 255), int(b_norm * 255))
 
-def get_palette(image_path, num_colors, color_space='rgb'):
+def get_palette(image_path, num_colors, color_space='rgb', model='kmeans'):
     """
     Extracts a palette of colors from an image using K-Means clustering.
 
@@ -23,6 +24,7 @@ def get_palette(image_path, num_colors, color_space='rgb'):
         image_path (str): The path to the image file.
         num_colors (int): The number of colors to find.
         color_space (str): The color space to use ('rgb' or 'hsv').
+        model (str): The model used for clustering ('kmeans' or 'gmm'z)
 
     Returns:
         list: A list of the dominant colors as tuples.
@@ -44,15 +46,22 @@ def get_palette(image_path, num_colors, color_space='rgb'):
     # Flatten array into list of pixels
     pixels = image_array.reshape(-1, image_array.shape[-1])
 
-    # Apply K-Means clustering
-    kmeans = KMeans(n_clusters=num_colors, random_state=0)
-    kmeans.fit(pixels)
-
-    # Get cluster centers as palette colors
-    palette = kmeans.cluster_centers_
+    if model == 'kmeans':
+        # Apply K-Means clustering
+        kmeans = KMeans(n_clusters=num_colors, random_state=0)
+        kmeans.fit(pixels)
+        # Get cluster centers as palette colors
+        palette = kmeans.cluster_centers_
+        labels = kmeans.labels_
+    elif model == 'gmm':
+        # Apply Gaussian Mixture Model clustering
+        gmm = GaussianMixture(n_components=num_colors, random_state=0)
+        gmm.fit(pixels)
+        # Ger cluser centers as palette colors
+        palette = gmm.means_
+        labels = gmm.predict(pixels)
 
     # Count the number of pixels in each cluster
-    labels = kmeans.labels_
     cluster_counts = Counter(labels)
 
     # Get the indices of the clusters in descending order of their size
@@ -93,10 +102,17 @@ if __name__ == "__main__":
         help="Color space to use for clustering (default: rgb)."
     )
 
+    parser.add_argument(
+        "-m", "--model",
+        choices=['kmeans','gmm'],
+        default='kmeans',
+        help="Model to use for clustering (default: kmeans)"
+    )
+
     args = parser.parse_args()
 
     # Get the palette using RGB clustering
-    palette = get_palette(args.image_path, args.num_colors, args.color_space)
+    palette = get_palette(args.image_path, args.num_colors, args.color_space, args.model)
     
     if palette:
         print(f"Dominant Colors (RGB)")

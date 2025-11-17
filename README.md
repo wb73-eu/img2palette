@@ -1,6 +1,6 @@
 # img2palette
 
-A python-based program that returns a color palette from an image using K-Means clustering algorithm.
+A python-based program that returns a color palette from an image using clustering algorithms.
 
 ![img2palette application on an image.](result.png)
 *[Image](https://commons.wikimedia.org/wiki/File:Inside_of_a_hot_air_balloon.jpg) by [Hu Nhu](https://commons.wikimedia.org/wiki/User:Hu_Nhu), licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.en).*
@@ -35,7 +35,8 @@ python palette_extractor.py input.jpg
 
 * `input.jpg` : source image path.
 * `--num_colors`/`-n` : number of colors in the extracted palette (The default value is `5`).
-* `--color_space`/`-c` : color space used for plotting pixels before applying K-Means (`RGB` or `HSV`, default is `RGB`).
+* `--color_space`/`-c` : color space used for plotting pixels before applying the clustering (`RGB` or `HSV`, default is `RGB`).
+* `--model`/`-m` : model used for clustering (`KMEANS` or `GMM`, default is `KMEANS`).
 
 ### Example
 Input :
